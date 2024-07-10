@@ -1,11 +1,11 @@
 describe 'database' do
     before do
-        'rm -rf test.db'
+        `rm -rf test.db`
     end
 
     def run_scripts(commands)
         raw_output = nil
-        IO.popen("./db", "r+") do |pipe|
+        IO.popen("./db test.db", "r+") do |pipe|
             commands.each do |command|
                 pipe.puts command
             end
@@ -89,7 +89,7 @@ describe 'database' do
         script = [
             "insert #{neg_id} user1 user1@example.com",
             "select",
-            ".exit"
+            ".exit",
         ]
 
         result = run_scripts(script)
