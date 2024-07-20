@@ -100,4 +100,66 @@ describe 'database' do
             "simpledb > ",
         ])
     end
+
+    it 'prints constants' do
+        script = [
+            ".constants",
+            ".exit",
+        ]
+
+        result = run_scripts(script)
+
+        expect(result).to match_array([
+            "simpledb > Constants:",
+            "ROW_SIZE: 293",
+            "COMMON_NODE_HEADER_SIZE: 6",
+            "LEAF_NODE_HEADER_SIZE: 10",
+            "LEAF_NODE_CELL_SIZE: 297",
+            "LEAF_NODE_SPACE_FOR_CELLS: 4086",
+            "LEAF_NODE_MAX_CELLS: 13",
+            "simpledb > ",
+        ])
+    end
+
+    it 'allows printing out the structure of a one-node btree' do
+        script = [3, 1, 2].map do |i|
+            "insert #{i} user#{i} person#{i}@example.com"
+        end
+
+        script << ".btree"
+        script << ".exit"
+        
+        result = run_scripts(script)
+
+        expect(result).to match_array([
+            "simpledb > Executed.",
+            "simpledb > Executed.",
+            "simpledb > Executed.",
+            "simpledb > Tree:",
+            "leaf (size 3)",
+            "  - 0 : 1",
+            "  - 1 : 2",
+            "  - 2 : 3",
+            "simpledb > "
+        ])
+    end
+
+    it 'prints an error message if there is a duplicate id' do
+        script = [
+            "insert 1 user1 person1@example.com",
+            "insert 1 user1 person1@example.com",
+            "select",
+            ".exit",
+        ]
+            
+        result = run_scripts(script)
+            
+        expect(result).to match_array([
+            "simpledb > Executed.",
+            "simpledb > Error: Duplicate key.",
+            "simpledb > (1, user1, person1@example.com)",
+            "Executed.",
+            "simpledb > ",
+        ])
+    end
 end
